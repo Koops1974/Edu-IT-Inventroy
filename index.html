@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edu-IT Inventory</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="login-screen" class="screen active">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fas fa-school"></i>
+                <h1>Edu-IT Inventory</h1>
+                <p>School IT Asset Management</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="github-token">GitHub Token</label>
+                    <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxx" required>
+                    <small>Personal access token with repo permissions</small>
+                </div>
+                <div class="form-group">
+                    <label for="repo-owner">Repository Owner</label>
+                    <input type="text" id="repo-owner" placeholder="Koops1974" required>
+                </div>
+                <div class="form-group">
+                    <label for="repo-name">Repository Name</label>
+                    <input type="text" id="repo-name" placeholder="Edu-IT-Inventroy" required>
+                </div>
+                <div class="form-group">
+                    <label for="access-password">Access Password</label>
+                    <input type="password" id="access-password" placeholder="Enter access password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+            <div class="login-footer">
+                <p>Data stored in: <strong>GitHub Repository</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Dashboard -->
+<div id="dashboard" class="screen">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-school"></i>
+            <span>Edu-IT Inventory</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-section="dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="#" class="nav-item" data-section="assets">
+                <i class="fas fa-laptop"></i> All Assets
+            </a>
+            <a href="#" class="nav-item" data-section="add-asset">
+                <i class="fas fa-plus-circle"></i> Add Asset
+            </a>
+            <a href="#" class="nav-item" data-section="csv-upload">
+                <i class="fas fa-file-csv"></i> CSV Upload
+            </a>
+            <a href="#" class="nav-item" data-section="schools">
+                <i class="fas fa-building"></i> Schools
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logout-btn" class="btn btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <button id="menu-toggle" class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="school-selector">
+                <label for="current-school">School:</label>
+                <select id="current-school">
+                    <option value="all">All Schools</option>
+                </select>
+            </div>
+            <div class="topbar-right">
+                <span id="last-sync" class="last-sync"></span>
+                <button id="sync-btn" class="btn btn-icon" title="Sync with GitHub">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section id="section-dashboard" class="section active">
+            <h2>Dashboard</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-laptop"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-total">0</h3>
+                        <p>Total Assets</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon available"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-available">0</h3>
+                        <p>Available</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon in-use"><i class="fas fa-user"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-in-use">0</h3>
+                        <p>In Use</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon repair"><i class="fas fa-tools"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-repair">0</h3>
+                        <p>Needs Repair</p>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-pie"></i> Assets by Type</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="chart-types" class="chart-container"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-map-marker-alt"></i> Assets by Location</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="chart-locations" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-clock"></i> Recently Updated</h3>
+                </div>
+                <div class="card-body">
+                    <div id="recent-assets" class="recent-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Assets Section -->
+        <section id="section-assets" class="section">
+            <div class="section-header">
+                <h2>All Assets</h2>
+                <button id="add-asset-btn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Asset
+                </button>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filters-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search assets...">
+                </div>
+                <select id="filter-type" class="filter-select">
+                    <option value="">All Types</option>
+                    <option value="laptop">Laptop</option>
+                    <option value="desktop">Desktop</option>
+                    <option value="tablet">Tablet</option>
+                    <option value="printer">Printer</option>
+                    <option value="network">Network Equipment</option>
+                    <option value="peripheral">Peripheral</option>
+                    <option value="software">Software License</option>
+                    <option value="other">Other</option>
+                </select>
+                <select id="filter-status" class="filter-select">
+                    <option value="">All Status</option>
+                    <option value="available">Available</option>
+                    <option value="in-use">In Use</option>
+                    <option value="repair">Needs Repair</option>
+                    <option value="retired">Retired</option>
+                </select>
+                <select id="filter-location" class="filter-select">
+                    <option value="">All Locations</option>
+                </select>
+            </div>
+
+            <!-- Assets Table -->
+            <div class="table-container">
+                <table id="assets-table" class="data-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="name">Name <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-sort="type">Type <i class="fas fa-sort"></i></th>
+                            <th>Serial Number</th>
+                            <th>Model</th>
+                            <th>School</th>
+                            <th>Location</th>
+                            <th class="sortable" data-sort="status">Status <i class="fas fa-sort"></i></th>
+                            <th>Assigned To</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assets-tbody">
+                    </tbody>
+                </table>
+            </div>
+            <div id="pagination" class="pagination"></div>
+        </section>
+
+        <!-- Add/Edit Asset Section -->
+        <section id="section-add-asset" class="section">
+            <div class="section-header">
+                <h2 id="form-title">Add New Asset</h2>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <form id="asset-form">
+                        <input type="hidden" id="asset-id">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="asset-name">Asset Name *</label>
+                                <input type="text" id="asset-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="asset-type">Type *</label>
+                                <select id="asset-type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="laptop">Laptop</option>
+                                    <option value="desktop">Desktop</option>
+                                    <option value="tablet">Tablet</option>
+                                    <option value="printer">Printer</option>
+                                    <option value="network">Network Equipment</option>
+                                    <option value="peripheral">Peripheral</option>
+                                    <option value="software">Software License</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="asset-serial">Serial Number</label>
+                                <input type="text" id="asset-serial">
+                            </div>
+                            <div class="form-group">
+                                <label for="asset-model">Model</label>
+                                <input type="text" id="asset-model">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="asset-manufacturer">Manufacturer</label>
+                                <input type="text" id="asset-manufacturer">
+                            </div>
+                            <div class="form-group">
+                                <label for="asset-purchase-date">Purchase Date</label>
+                                <input type="date" id="asset-purchase-date">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="asset-school">School *</label>
+                                <select id="asset-school" required>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="asset-location">Location</label>
+                                <input type="text" id="asset-location" placeholder="e.g., Room 101, Library">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="asset-status">Status *</label>
+                                <select id="asset-status" required>
+                                    <option value="available">Available</option>
+                                    <option value="in-use">In Use</option>
+                                    <option value="repair">Needs Repair</option>
+                                    <option value="retired">Retired</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="asset-assigned">Assigned To</label>
+                                <input type="text" id="asset-assigned" placeholder="Teacher/Department name">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="asset-ip">IP Address</label>
+                                <input type="text" id="asset-ip" placeholder="For network devices">
+                            </div>
+                            <div class="form-group">
+                                <label for="asset-warranty">Warranty Expiry</label>
+                                <input type="date" id="asset-warranty">
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="asset-notes">Notes</label>
+                            <textarea id="asset-notes" rows="3"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Asset
+                            </button>
+                            <button type="button" id="cancel-edit" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- CSV Upload Section -->
+        <section id="section-csv-upload" class="section">
+            <div class="section-header">
+                <h2>CSV Upload</h2>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="upload-area" id="drop-zone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Drag & Drop CSV File Here</h3>
+                        <p>or click to browse</p>
+                        <input type="file" id="csv-file" accept=".csv" hidden>
+                    </div>
+                    <div id="csv-preview" class="csv-preview" style="display:none;">
+                        <h3>Preview</h3>
+                        <div class="csv-info">
+                            <span id="csv-filename"></span>
+                            <span id="csv-count"></span>
+                        </div>
+                        <div class="csv-mapping">
+                            <h4>Column Mapping</h4>
+                            <p>Map your CSV columns to asset fields:</p>
+                            <div class="mapping-grid">
+                                <div class="mapping-item">
+                                    <label>Name Column:</label>
+                                    <select id="map-name"></select>
+                                </div>
+                                <div class="mapping-item">
+                                    <label>Type Column:</label>
+                                    <select id="map-type"></select>
+                                </div>
+                                <div class="mapping-item">
+                                    <label>Serial Column:</label>
+                                    <select id="map-serial"></select>
+                                </div>
+                                <div class="mapping-item">
+                                    <label>Model Column:</label>
+                                    <select id="map-model"></select>
+                                </div>
+                                <div class="mapping-item">
+                                    <label>Location Column:</label>
+                                    <select id="map-location"></select>
+                                </div>
+                                <div class="mapping-item">
+                                    <label>Status Column:</label>
+                                    <select id="map-status"></select>
+                                </div>
+                                <div class="mapping-item">
+                                    <label>School Column:</label>
+                                    <select id="map-school"></select>
+                                </div>
+                                <div class="mapping-item">
+                                    <label>Assigned To Column:</label>
+                                    <select id="map-assigned"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="csv-data-preview">
+                            <h4>Data Preview (first 5 rows)</h4>
+                            <div id="csv-table-preview"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button id="import-csv" class="btn btn-primary">
+                                <i class="fas fa-file-import"></i> Import Data
+                            </button>
+                            <button id="cancel-csv" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                    <div class="csv-template">
+                        <h3>Need a Template?</h3>
+                        <p>Download a sample CSV template to get started:</p>
+                        <button id="download-template" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> Download Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Schools Section -->
+        <section id="section-schools" class="section">
+            <div class="section-header">
+                <h2>Schools</h2>
+                <button id="add-school-btn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add School
+                </button>
+            </div>
+            <div id="schools-list" class="schools-grid"></div>
+        </section>
+    </main>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Delete</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete <strong id="delete-asset-name"></strong>?</p>
+            <p class="warning">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button id="confirm-delete" class="btn btn-danger">Delete</button>
+            <button id="cancel-delete" class="btn btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- School Modal -->
+<div id="school-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="school-modal-title">Add School</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="school-form">
+                <input type="hidden" id="school-id">
+                <div class="form-group">
+                    <label for="school-name">School Name *</label>
+                    <input type="text" id="school-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="school-code">School Code</label>
+                    <input type="text" id="school-code" placeholder="e.g., HS, MS">
+                </div>
+                <div class="form-group">
+                    <label for="school-address">Address</label>
+                    <input type="text" id="school-address">
+                </div>
+                <div class="form-group">
+                    <label for="school-contact">Contact Person</label>
+                    <input type="text" id="school-contact">
+                </div>
+                <div class="form-group">
+                    <label for="school-email">Contact Email</label>
+                    <input type="email" id="school-email">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button id="save-school" class="btn btn-primary">Save</button>
+            <button id="cancel-school" class="btn btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<!-- Loading Overlay -->
+<div id="loading" class="loading-overlay" style="display:none;">
+    <div class="spinner"></div>
+    <p id="loading-text">Loading...</p>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/github-api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/csv.js"></script>
+<script src="js/assets.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

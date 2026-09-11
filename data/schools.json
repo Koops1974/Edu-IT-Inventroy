@@ -1,0 +1,18 @@
+[
+  {
+    "id": "school_1720000000001",
+    "name": "School 1",
+    "code": "S1",
+    "address": "123 Main Street",
+    "contact": "IT Coordinator",
+    "email": "it@school1.edu"
+  },
+  {
+    "id": "school_1720000000002",
+    "name": "School 2",
+    "code": "S2",
+    "address": "456 Oak Avenue",
+    "contact": "IT Admin",
+    "email": "it@school2.edu"
+  }
+]
