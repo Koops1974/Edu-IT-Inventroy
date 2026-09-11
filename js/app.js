@@ -38,9 +38,11 @@ const UI = {
         toast.className = 'toast ' + type;
         toast.classList.add('show');
         
+        // Keep error toasts visible longer
+        const duration = type === 'error' ? 8000 : 3000;
         setTimeout(() => {
             toast.classList.remove('show');
-        }, 3000);
+        }, duration);
     },
     
     // Handle login
@@ -574,6 +576,11 @@ const UI = {
         document.getElementById('save-school').addEventListener('click', this.saveSchool.bind(this));
         document.getElementById('cancel-school').addEventListener('click', () => {
             document.getElementById('school-modal').classList.remove('active');
+        });
+        
+        // Prevent school form from submitting (Enter key) and reloading the page
+        document.getElementById('school-form').addEventListener('submit', (e) => {
+            e.preventDefault();
         });
         
         // Add school button

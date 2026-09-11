@@ -25,6 +25,12 @@ const GitHubAPI = {
                 if (response.status === 404) {
                     return null;
                 }
+                if (response.status === 401) {
+                    throw new Error('Your GitHub token is invalid or has expired. Create a new token and log in again.');
+                }
+                if (response.status === 403) {
+                    throw new Error('Your GitHub token does not have access to this repository. Your token needs the "repo" scope.');
+                }
                 throw new Error(`Failed to fetch ${path}: ${response.status}`);
             }
             
