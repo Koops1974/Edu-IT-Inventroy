@@ -4,8 +4,8 @@ const Auth = {
     
     // Check if user is logged in
     isLoggedIn() {
-        const session = localStorage.getItem(this.sessionKey);
-        return !!session && Config.isConnected();
+        // Session is valid if we have stored credentials (config)
+        return Config.isConnected();
     },
     
     // Login with GitHub token and password
